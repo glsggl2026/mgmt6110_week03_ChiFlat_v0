@@ -1,5 +1,5 @@
 {
-  "name": "ChiFlat",
+  "name": "FlatRadar",
   "description": "What HDB flats actually sold for — explore Singapore HDB resale prices, lease bands, and transaction details.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

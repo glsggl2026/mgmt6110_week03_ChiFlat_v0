@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResaleTransaction } from '../types.ts';
-import { formatPrice, formatMonth, getLeaseNote } from '../utils/hdb.ts';
+import { formatPrice, formatMonth } from '../utils/hdb.ts';
 import {
   ArrowLeft,
   Building,
@@ -9,7 +9,6 @@ import {
   Layers,
   Maximize2,
   Clock,
-  ShieldAlert,
   Tag,
   Home,
   FileText,
@@ -24,8 +23,6 @@ export const DetailScreen: React.FC<DetailScreenProps> = ({
   transaction,
   onBack,
 }) => {
-  const leaseNote = getLeaseNote(transaction.lease_band);
-
   return (
     <div id="detail-screen" className="max-w-3xl mx-auto px-4 py-6 sm:px-6">
       {/* Back Button */}
@@ -210,26 +207,6 @@ export const DetailScreen: React.FC<DetailScreenProps> = ({
               <span className="font-extrabold text-stone-900 text-xl">
                 {formatPrice(transaction.resale_price_num)}
               </span>
-            </div>
-          </div>
-
-          {/* Lease Band Plain-English Note */}
-          <div
-            id="lease-information-note"
-            className="mt-6 p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80"
-          >
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
-                <ShieldAlert className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 mb-1">
-                  Lease Considerations ({transaction.lease_band})
-                </h4>
-                <p className="text-sm font-medium text-stone-800 leading-relaxed">
-                  {leaseNote}
-                </p>
-              </div>
             </div>
           </div>
         </div>

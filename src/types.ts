@@ -5,11 +5,11 @@ export interface RawResaleRecord {
   block: string;
   street_name: string;
   storey_range: string;
-  floor_area_sqm: string;
+  floor_area_sqm: string | number;
   flat_model: string;
   lease_commence_date: string;
   remaining_lease: string;
-  resale_price: string;
+  resale_price: string | number;
 }
 
 export type LeaseBand =
@@ -23,6 +23,8 @@ export type StoreyBand =
   | 'Mid (7 to 15)'
   | 'High (16 and above)';
 
+export type PeriodOption = 'Last 12 months' | 'Last 24 months' | 'Last 36 months';
+
 export interface ResaleTransaction extends RawResaleRecord {
   id: string;
   resale_price_num: number;
@@ -30,16 +32,15 @@ export interface ResaleTransaction extends RawResaleRecord {
   remaining_lease_years: number;
   lease_band: LeaseBand;
   storey_band: StoreyBand;
-  transaction_year: string;
 }
 
 export interface FilterState {
-  flat_type: string;
   town: string;
+  period: PeriodOption;
+  flat_type: string;
   flat_model: string;
   remaining_lease: string;
   storey_range: string;
-  transaction_year: string;
 }
 
 export type SortOrder = 'newest' | 'price_asc' | 'price_desc';

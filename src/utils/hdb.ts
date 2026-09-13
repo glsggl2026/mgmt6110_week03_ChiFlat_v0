@@ -3,6 +3,7 @@ import {
   ResaleTransaction,
   LeaseBand,
   StoreyBand,
+  PeriodOption,
 } from '../types.ts';
 
 export const LEASE_BANDS: LeaseBand[] = [
@@ -16,6 +17,12 @@ export const STOREY_BANDS: StoreyBand[] = [
   'Low (1 to 6)',
   'Mid (7 to 15)',
   'High (16 and above)',
+];
+
+export const PERIOD_OPTIONS: PeriodOption[] = [
+  'Last 12 months',
+  'Last 24 months',
+  'Last 36 months',
 ];
 
 export function parseRemainingLeaseYears(leaseStr: string): number {
@@ -56,12 +63,11 @@ export function transformRecord(
   raw: RawResaleRecord,
   index: number
 ): ResaleTransaction {
-  // IMPORTANT: resale_price and floor_area_sqm arrive as TEXT, not numbers, so convert them with Number()
+  // IMPORTANT: resale_price and floor_area_sqm arrive as strings, so convert them with Number()
   // the moment they are read.
   const priceNum = Number(raw.resale_price);
   const areaNum = Number(raw.floor_area_sqm);
   const leaseYears = parseRemainingLeaseYears(raw.remaining_lease);
-  const year = raw.month.split('-')[0] || '';
 
   return {
     ...raw,
@@ -71,12 +77,37 @@ export function transformRecord(
     remaining_lease_years: leaseYears,
     lease_band: getLeaseBand(leaseYears),
     storey_band: getStoreyBand(raw.storey_range),
-    transaction_year: year,
   };
+}
+
+export function isWithinPeriod(
+  txMonth: string,
+  newestMonth: string,
+  period: PeriodOption
+): boolean {
+  if (!txMonth || !newestMonth) return true;
+  const [newYear, newMo] = newestMonth.split('-').map((v) => parseInt(v, 10));
+  const [txYear, txMo] = txMonth.split('-').map((v) => parseInt(v, 10));
+  if (isNaN(newYear) || isNaN(newMo) || isNaN(txYear) || isNaN(txMo)) return true;
+
+  const diffMonths = (newYear - txYear) * 12 + (newMo - txMo);
+  const maxMonths =
+    period === 'Last 12 months' ? 12 : period === 'Last 24 months' ? 24 : 36;
+
+  return diffMonths >= 0 && diffMonths < maxMonths;
 }
 
 export function formatPrice(price: number): string {
   return `S$${price.toLocaleString('en-SG')}`;
+}
+
+export function formatCompactPrice(price: number): string {
+  if (price >= 1_000_000) {
+    const m = (price / 1_000_000).toFixed(2);
+    return `S$${m}m`;
+  }
+  const k = Math.round(price / 1_000);
+  return `S$${k}k`;
 }
 
 export function formatMonth(monthStr: string): string {
@@ -106,15 +137,13 @@ export function formatMonth(monthStr: string): string {
   return monthStr;
 }
 
-export function getLeaseNote(band: LeaseBand): string {
-  switch (band) {
-    case 'Less than 60 years':
-      return "CPF use may be reduced depending on the youngest buyer's age, and loan tenure may be shorter. Buyers should check their remaining CPF housing withdrawal limits before making an offer.";
-    case '60 to 69 years':
-      return "Flats in this lease band generally allow full CPF financing if the remaining lease covers the youngest buyer until age 95. Standard loan tenures are typically accessible while maintaining balanced resale value.";
-    case '70 to 79 years':
-      return "Flats with 70 to 79 years of lease offer extensive CPF financing flexibility and full mortgage loan tenures. The lease duration remains comfortably high for both younger and mature home buyers.";
-    case 'More than 80 years':
-      return "Flats with more than 80 years of remaining lease qualify for maximum CPF withdrawal and the full allowable loan tenure. These younger flats offer long-term asset security with zero financing constraints.";
-  }
+export function getPercentile(sortedValues: number[], p: number): number {
+  if (sortedValues.length === 0) return 0;
+  if (sortedValues.length === 1) return sortedValues[0];
+  const index = (sortedValues.length - 1) * p;
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  const weight = index - lower;
+  if (lower === upper) return sortedValues[lower];
+  return Math.round(sortedValues[lower] * (1 - weight) + sortedValues[upper] * weight);
 }

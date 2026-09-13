@@ -1,6 +1,6 @@
 import React from 'react';
-import { FilterState } from '../types.ts';
-import { LEASE_BANDS, STOREY_BANDS } from '../utils/hdb.ts';
+import { FilterState, PeriodOption } from '../types.ts';
+import { LEASE_BANDS, STOREY_BANDS, PERIOD_OPTIONS } from '../utils/hdb.ts';
 
 interface FilterSectionProps {
   filters: FilterState;
@@ -8,7 +8,6 @@ interface FilterSectionProps {
   availableTowns: string[];
   availableFlatTypes: string[];
   availableFlatModels: string[];
-  availableYears: string[];
 }
 
 export const FilterSection: React.FC<FilterSectionProps> = ({
@@ -17,7 +16,6 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   availableTowns,
   availableFlatTypes,
   availableFlatModels,
-  availableYears,
 }) => {
   const handleChange = (key: keyof FilterState, value: string) => {
     onFilterChange({
@@ -64,7 +62,29 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </select>
         </div>
 
-        {/* 2. Flat Type */}
+        {/* 2. Period Filter */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="filter-period"
+            className="text-xs font-semibold text-stone-700"
+          >
+            Period
+          </label>
+          <select
+            id="filter-period"
+            value={filters.period}
+            onChange={(e) => handleChange('period', e.target.value as PeriodOption)}
+            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+          >
+            {PERIOD_OPTIONS.map((period) => (
+              <option key={period} value={period}>
+                {period}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 3. Flat Type */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-flat-type"
@@ -87,7 +107,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </select>
         </div>
 
-        {/* 3. Flat Model */}
+        {/* 4. Flat Model */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-flat-model"
@@ -110,7 +130,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </select>
         </div>
 
-        {/* 4. Remaining Lease */}
+        {/* 5. Remaining Lease */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-remaining-lease"
@@ -133,7 +153,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </select>
         </div>
 
-        {/* 5. Storey Band */}
+        {/* 6. Storey Band */}
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="filter-storey"
@@ -151,29 +171,6 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             {STOREY_BANDS.map((band) => (
               <option key={band} value={band}>
                 {band}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 6. Transaction Year */}
-        <div className="flex flex-col gap-1.5">
-          <label
-            htmlFor="filter-transaction-year"
-            className="text-xs font-semibold text-stone-700"
-          >
-            Transaction Year
-          </label>
-          <select
-            id="filter-transaction-year"
-            value={filters.transaction_year}
-            onChange={(e) => handleChange('transaction_year', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
-          >
-            <option value="Any">Any year</option>
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
               </option>
             ))}
           </select>

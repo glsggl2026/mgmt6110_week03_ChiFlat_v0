@@ -40,6 +40,10 @@ export type FetchStatus = 'success' | 'refused' | 'unreachable';
 export interface ResaleFetchResponse {
   status: FetchStatus;
   data: ResaleTransaction[];
+  total?: number;
+  count?: number;
+  oldestMonth?: string;
+  newestMonth?: string;
   errorReason?: string;
 }
 
@@ -68,10 +72,15 @@ export async function fetchResaleTransactions(
       };
     }
 
-    const rawRecords: RawResaleRecord[] = await response.json();
+    const payload = await response.json();
+    const rawRecords: RawResaleRecord[] = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.records)
+      ? payload.records
+      : null;
 
     // A 200 reply with an empty records array is NOT an error.
-    if (!Array.isArray(rawRecords)) {
+    if (!rawRecords || !Array.isArray(rawRecords)) {
       return {
         status: 'unreachable',
         data: [],
@@ -90,6 +99,10 @@ export async function fetchResaleTransactions(
     return {
       status: 'success',
       data: transactions,
+      total: typeof payload?.total === 'number' ? payload.total : undefined,
+      count: typeof payload?.count === 'number' ? payload.count : transactions.length,
+      oldestMonth: payload?.oldestMonth,
+      newestMonth: payload?.newestMonth,
     };
   } catch (error) {
     console.warn('Network or unreachable error calling /api/resale:', error);

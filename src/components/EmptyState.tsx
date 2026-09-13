@@ -49,13 +49,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             Clear Storey Filter ({filters.storey_range})
           </button>
         )}
-        {filters.transaction_year !== 'Any' && (
+        {filters.period !== 'Last 12 months' && (
           <button
             type="button"
-            onClick={() => onClearFilter('transaction_year')}
+            onClick={() => onClearFilter('period')}
             className="px-3 py-1.5 rounded-lg bg-white border border-stone-300 text-stone-800 text-xs font-semibold hover:bg-stone-100 transition-colors shadow-2xs"
           >
-            Clear Year Filter ({filters.transaction_year})
+            Reset Period (Last 12 months)
           </button>
         )}
         {filters.flat_type !== 'Any' && (
