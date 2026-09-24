@@ -27,24 +27,16 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   return (
     <div
       id="filter-container"
-      className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 shadow-xs mb-6"
+      className="bg-white rounded-xl p-3 sm:p-4 border border-stone-200 shadow-2xs mb-5"
     >
-      <div className="flex items-center justify-between mb-3.5 pb-2.5 border-b border-stone-100">
-        <h2 className="text-sm font-semibold tracking-wide text-stone-900 uppercase">
-          Search Filters
-        </h2>
-        <span className="text-xs text-stone-600">
-          Instant updates
-        </span>
-      </div>
-
-      {/* Grid: stacked on phone (1 col), 2 cols on laptop (md:grid-cols-2) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+      {/* 6 Filters squeezed into 1 single row on desktop (lg:grid-cols-6) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
         {/* 1. Town */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-town"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Town"
           >
             Town
           </label>
@@ -52,7 +44,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             id="filter-town"
             value={filters.town}
             onChange={(e) => handleChange('town', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             {availableTowns.map((town) => (
               <option key={town} value={town}>
@@ -62,11 +54,12 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
           </select>
         </div>
 
-        {/* 2. Period Filter */}
-        <div className="flex flex-col gap-1.5">
+        {/* 2. Period */}
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-period"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Period"
           >
             Period
           </label>
@@ -74,7 +67,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             id="filter-period"
             value={filters.period}
             onChange={(e) => handleChange('period', e.target.value as PeriodOption)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             {PERIOD_OPTIONS.map((period) => (
               <option key={period} value={period}>
@@ -85,10 +78,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
 
         {/* 3. Flat Type */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-flat-type"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Flat Type"
           >
             Flat Type
           </label>
@@ -96,7 +90,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             id="filter-flat-type"
             value={filters.flat_type}
             onChange={(e) => handleChange('flat_type', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
             {availableFlatTypes.map((type) => (
@@ -108,10 +102,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
 
         {/* 4. Flat Model */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-flat-model"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Flat Model"
           >
             Flat Model
           </label>
@@ -119,7 +114,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             id="filter-flat-model"
             value={filters.flat_model}
             onChange={(e) => handleChange('flat_model', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
             {availableFlatModels.map((model) => (
@@ -131,18 +126,19 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
 
         {/* 5. Remaining Lease */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-remaining-lease"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Remaining Lease"
           >
-            Remaining Lease
+            Lease
           </label>
           <select
             id="filter-remaining-lease"
             value={filters.remaining_lease}
             onChange={(e) => handleChange('remaining_lease', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
             {LEASE_BANDS.map((band) => (
@@ -154,10 +150,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
 
         {/* 6. Storey Band */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="filter-storey"
-            className="text-xs font-semibold text-stone-700"
+            className="text-[11px] font-bold text-stone-600 uppercase tracking-wider truncate"
+            title="Storey Band"
           >
             Storey
           </label>
@@ -165,7 +162,7 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             id="filter-storey"
             value={filters.storey_range}
             onChange={(e) => handleChange('storey_range', e.target.value)}
-            className="w-full min-h-[44px] px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-stone-900 transition-colors"
+            className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
             {STOREY_BANDS.map((band) => (

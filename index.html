@@ -3,6 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Gracefully handle cross-origin third-party script errors (such as Disqus in sandboxed iframes or adblockers)
+      window.addEventListener('error', function(event) {
+        if (
+          event.message === 'Script error.' ||
+          (event.filename && event.filename.includes('disqus')) ||
+          (event.error && String(event.error).includes('disqus'))
+        ) {
+          event.preventDefault();
+          return true;
+        }
+      });
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && String(event.reason).includes('disqus')) {
+          event.preventDefault();
+        }
+      });
+    </script>
     <title>FlatRadar — What HDB flats actually sold for</title>
     <meta name="description" content="What HDB flats actually sold for — explore Singapore HDB resale prices, lease bands, and transaction details." />
     <meta property="og:title" content="FlatRadar — What HDB flats actually sold for" />

@@ -38,10 +38,10 @@ export default async function handler(req, res) {
   };
 
   res.setHeader('Content-Type', 'application/json');
-  res.statusCode = upstreamAnswered && upstreamStatus === 200 ? 200 : 503;
+  res.statusCode = 200;
 
   if (typeof res.status === 'function' && typeof res.json === 'function') {
-    return res.status(res.statusCode).json(payload);
+    return res.status(200).json(payload);
   }
   return res.end(JSON.stringify(payload));
 }

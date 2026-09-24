@@ -9,7 +9,10 @@ import { TransactionCard } from './components/TransactionCard.tsx';
 import { EmptyState } from './components/EmptyState.tsx';
 import { ErrorNotice } from './components/ErrorNotice.tsx';
 import { DetailScreen } from './components/DetailScreen.tsx';
-import { Loader2 } from 'lucide-react';
+import { DisqusComments } from './components/DisqusComments.tsx';
+import { PriceBoxChart } from './components/PriceBoxChart.tsx';
+import { exportTransactionsToCsv } from './utils/csv.ts';
+import { Loader2, BarChart3, TableProperties, Download } from 'lucide-react';
 
 const INITIAL_FILTERS: FilterState = {
   town: 'ANG MO KIO',
@@ -23,6 +26,7 @@ const INITIAL_FILTERS: FilterState = {
 export default function App() {
   // Screen routing: 'search' (Screen 1) or 'detail' (Screen 2)
   const [currentScreen, setCurrentScreen] = useState<'search' | 'detail'>('search');
+  const [activeScreenTab, setActiveScreenTab] = useState<'screen1' | 'screen2'>('screen1');
   const [selectedTransaction, setSelectedTransaction] = useState<ResaleTransaction | null>(null);
 
   // Filters state - preserved when navigating between Screen 1 and Screen 2
@@ -226,7 +230,7 @@ export default function App() {
       <Header />
 
       {/* Screen 1 or Screen 2 */}
-      <main className="flex-1 w-full max-w-4xl mx-auto px-4 py-6 sm:px-6">
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6 sm:px-6">
         {currentScreen === 'detail' && selectedTransaction ? (
           /* [Screen 2] — Transaction Detail */
           <DetailScreen
@@ -234,9 +238,9 @@ export default function App() {
             onBack={handleBackToSearch}
           />
         ) : (
-          /* [Screen 1] — Search and Results */
+          /* Search and Screens */
           <div id="search-results-screen">
-            {/* Filter Section: Town, Period, Flat Type, Flat Model, Remaining Lease, Storey */}
+            {/* Filter Section: Squeezed to 1 single row on desktop */}
             <FilterSection
               filters={filters}
               onFilterChange={setFilters}
@@ -244,6 +248,36 @@ export default function App() {
               availableFlatTypes={availableFlatTypes}
               availableFlatModels={availableFlatModels}
             />
+
+            {/* Screen Navigation Cards: Dark green background and white text when clicked */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button
+                type="button"
+                id="btn-nav-price-box-chart"
+                onClick={() => setActiveScreenTab('screen1')}
+                className={`py-3.5 px-4 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs ${
+                  activeScreenTab === 'screen1'
+                    ? 'bg-[#064e3b] text-white shadow-sm ring-1 ring-[#064e3b]'
+                    : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
+                }`}
+              >
+                <BarChart3 className={`w-4 h-4 sm:w-5 sm:h-5 ${activeScreenTab === 'screen1' ? 'text-white' : 'text-stone-500'}`} />
+                <span>Price box chart</span>
+              </button>
+              <button
+                type="button"
+                id="btn-nav-numerical-summary"
+                onClick={() => setActiveScreenTab('screen2')}
+                className={`py-3.5 px-4 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs ${
+                  activeScreenTab === 'screen2'
+                    ? 'bg-[#064e3b] text-white shadow-sm ring-1 ring-[#064e3b]'
+                    : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
+                }`}
+              >
+                <TableProperties className={`w-4 h-4 sm:w-5 sm:h-5 ${activeScreenTab === 'screen2' ? 'text-white' : 'text-stone-500'}`} />
+                <span>Numerical Summary</span>
+              </button>
+            </div>
 
             {/* Loading Case: "Loading recent transactions…" */}
             {isLoading ? (
@@ -262,42 +296,48 @@ export default function App() {
                 status={fetchStatus}
                 onRetry={() => loadTownData(filters.town)}
               />
-            ) : (
-              <>
-                {/* Summary strip, coverage line, refresh duration, and sort controls */}
-                <ResultsSummary
-                  matchingTransactions={sortedTransactions}
-                  allTownTransactions={townTransactions}
-                  totalTownTransactions={townTransactions.length}
+            ) : activeScreenTab === 'screen1' ? (
+              /* [Screen 1] — Price Box Chart covering Median, Average, N, 25%, 75% + Disqus */
+              <div id="screen-1-box-chart-view">
+                <PriceBoxChart
+                  transactions={sortedTransactions}
                   filters={filters}
-                  sortOrder={sortOrder}
-                  onSortChange={setSortOrder}
-                  refreshDurationMs={refreshDurationMs}
                 />
-
-                {/* Results List or Empty State */}
-                {sortedTransactions.length > 0 ? (
-                  <div
-                    id="transaction-results-list"
-                    className="flex flex-col gap-3 sm:gap-4"
-                  >
-                    {sortedTransactions.map((tx) => (
-                      <TransactionCard
-                        key={tx.id}
-                        transaction={tx}
-                        onSelect={handleSelectTransaction}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  /* Empty Case: "No flats matched those filters. Try clearing the lease or storey filter." */
-                  <EmptyState
-                    filters={filters}
-                    onClearAll={handleClearAllFilters}
-                    onClearFilter={handleClearFilter}
-                  />
-                )}
-              </>
+                {/* Visitor feedback thread */}
+                <DisqusComments />
+              </div>
+            ) : (
+              /* [Screen 2] — "Download selected transactions in csv" Button only. No other detailed transactions */
+              <div
+                id="screen-2-download-view"
+                className="bg-white border border-stone-200 rounded-2xl p-8 sm:p-14 text-center shadow-xs flex flex-col items-center justify-center"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-200 text-[#064e3b] flex items-center justify-center mb-4 shadow-2xs">
+                  <Download className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 mb-2">
+                  Export Resale Transactions
+                </h3>
+                <p className="text-sm text-stone-600 max-w-md mx-auto mb-6">
+                  {sortedTransactions.length > 0 ? (
+                    <>
+                      <strong className="text-stone-900 font-bold">{sortedTransactions.length.toLocaleString()}</strong> transactions matched your current filters for <strong className="text-stone-900 font-bold">{filters.town}</strong> ({filters.period}).
+                    </>
+                  ) : (
+                    <>No transactions matched the current filters.</>
+                  )}
+                </p>
+                <button
+                  type="button"
+                  id="btn-download-selected-csv"
+                  onClick={() => exportTransactionsToCsv(sortedTransactions, filters.town)}
+                  disabled={sortedTransactions.length === 0}
+                  className="min-h-[50px] px-8 py-3.5 bg-[#064e3b] hover:bg-[#053d2e] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm sm:text-base font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-3 cursor-pointer active:scale-[0.98]"
+                >
+                  <Download className="w-5 h-5 text-white" />
+                  <span>Download selected transactions in csv</span>
+                </button>
+              </div>
             )}
           </div>
         )}

@@ -6,7 +6,7 @@ import {
   formatPrice,
   getPercentile,
 } from '../utils/hdb.ts';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Download } from 'lucide-react';
 
 interface ResultsSummaryProps {
   matchingTransactions: ResaleTransaction[];
@@ -16,6 +16,7 @@ interface ResultsSummaryProps {
   sortOrder: SortOrder;
   onSortChange: (order: SortOrder) => void;
   refreshDurationMs: number | null;
+  onDownloadCsv?: () => void;
 }
 
 export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
@@ -26,6 +27,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
   sortOrder,
   onSortChange,
   refreshDurationMs,
+  onDownloadCsv,
 }) => {
   const n = matchingTransactions.length;
 
@@ -179,25 +181,42 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
             )}
           </p>
 
-          {/* Sort control */}
-          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            <label
-              htmlFor="sort-select"
-              className="text-xs font-semibold text-stone-200 flex items-center gap-1"
-            >
-              <ArrowUpDown className="w-3.5 h-3.5 text-stone-400" />
-              <span>Sort:</span>
-            </label>
-            <select
-              id="sort-select"
-              value={sortOrder}
-              onChange={(e) => onSortChange(e.target.value as SortOrder)}
-              className="min-h-[38px] px-3 py-1.5 bg-stone-700 border border-stone-600 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-2xs cursor-pointer"
-            >
-              <option value="newest" className="bg-stone-800 text-white">Newest first</option>
-              <option value="price_asc" className="bg-stone-800 text-white">Price, low to high</option>
-              <option value="price_desc" className="bg-stone-800 text-white">Price, high to low</option>
-            </select>
+          {/* Controls: Download CSV & Sort */}
+          <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto shrink-0">
+            {onDownloadCsv && (
+              <button
+                type="button"
+                id="download-csv-btn"
+                onClick={onDownloadCsv}
+                disabled={n === 0}
+                className="min-h-[38px] px-3.5 py-1.5 bg-stone-700 hover:bg-stone-600 disabled:opacity-40 disabled:cursor-not-allowed border border-stone-600 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-2xs cursor-pointer flex items-center gap-1.5 transition-colors"
+                title="Download matching transactions as CSV"
+              >
+                <Download className="w-3.5 h-3.5 text-stone-300" />
+                <span>Download CSV</span>
+              </button>
+            )}
+
+            {/* Sort control */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="sort-select"
+                className="text-xs font-semibold text-stone-200 flex items-center gap-1"
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 text-stone-400" />
+                <span>Sort:</span>
+              </label>
+              <select
+                id="sort-select"
+                value={sortOrder}
+                onChange={(e) => onSortChange(e.target.value as SortOrder)}
+                className="min-h-[38px] px-3 py-1.5 bg-stone-700 border border-stone-600 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-stone-400 shadow-2xs cursor-pointer"
+              >
+                <option value="newest" className="bg-stone-800 text-white">Newest first</option>
+                <option value="price_asc" className="bg-stone-800 text-white">Price, low to high</option>
+                <option value="price_desc" className="bg-stone-800 text-white">Price, high to low</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
