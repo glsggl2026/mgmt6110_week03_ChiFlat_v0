@@ -274,8 +274,8 @@ export default function App() {
                     : 'bg-white text-stone-700 hover:bg-stone-50 border border-stone-200'
                 }`}
               >
-                <TableProperties className={`w-4 h-4 sm:w-5 sm:h-5 ${activeScreenTab === 'screen2' ? 'text-white' : 'text-stone-500'}`} />
-                <span>Numerical Summary</span>
+                <Download className={`w-4 h-4 sm:w-5 sm:h-5 ${activeScreenTab === 'screen2' ? 'text-white' : 'text-stone-500'}`} />
+                <span>Download transactions</span>
               </button>
             </div>
 
