@@ -13,6 +13,7 @@ import { DisqusComments } from './components/DisqusComments.tsx';
 import { PriceBoxChart } from './components/PriceBoxChart.tsx';
 import { exportTransactionsToCsv } from './utils/csv.ts';
 import { Loader2, BarChart3, TableProperties, Download } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 const INITIAL_FILTERS: FilterState = {
   town: 'ANG MO KIO',
@@ -409,6 +410,7 @@ export default function App() {
           </p>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }
