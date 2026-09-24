@@ -132,7 +132,7 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
     return (
       <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center shadow-xs">
         <h3 className="text-lg font-bold text-stone-800 mb-2">
-          No transactions to plot
+          No transaction to plot. Remove filter(s) to see more transactions
         </h3>
         <p className="text-sm text-stone-500 max-w-md mx-auto">
           No flats matched the current filters for {filters.town}. Try clearing or broadening your filters.
