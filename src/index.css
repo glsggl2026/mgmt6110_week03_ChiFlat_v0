@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+#disqus_thread { color: #1f2937; }
+#disqus_thread a { color: #0f766e; }

@@ -96,7 +96,7 @@ export function DisqusComments() {
       </div>
 
       {/* Disqus Container */}
-      <div className="min-h-[220px] relative">
+      <div className="min-h-[220px] relative" style={{ color: '#1f2937' }}>
         {loadFailed ? (
           <div className="py-8 text-center text-xs text-stone-500 bg-stone-50 border border-stone-200 rounded-xl p-4">
             <p className="font-semibold text-stone-700 mb-1">
@@ -120,7 +120,7 @@ export function DisqusComments() {
             Connecting to Disqus discussion thread…
           </div>
         ) : null}
-        <div id="disqus_thread" className="w-full" />
+        <div id="disqus_thread" className="w-full" style={{ color: '#1f2937' }} />
       </div>
 
       <noscript>
