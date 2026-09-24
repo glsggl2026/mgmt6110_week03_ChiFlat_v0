@@ -212,7 +212,7 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
         }
       `}</style>
 
-      {/* Header with Click Cards below to Blink matching font size and style */}
+      {/* Header with Click Cards below to Blink matching font size & style */}
       <div className="pb-4 border-b border-stone-100 flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl tracking-tight flex flex-wrap items-center gap-3">
           <span className="font-extrabold text-stone-900">Price Box Chart</span>
