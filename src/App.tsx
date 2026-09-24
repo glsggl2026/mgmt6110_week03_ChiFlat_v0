@@ -343,12 +343,69 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer with exact required licence attribution */}
+      {/* Footer with exact required licence attribution and privacy notice */}
       <footer className="mt-auto py-6 border-t border-stone-200 bg-white text-center text-xs text-stone-600 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col gap-1.5">
+        <div className="max-w-4xl mx-auto flex flex-col gap-2">
           <div className="font-semibold text-stone-700">FlatRadar • What HDB flats actually sold for</div>
           <p className="text-stone-500 max-w-2xl mx-auto leading-relaxed">
             Contains information from Resale Flat Prices (Jan 2017 onwards) accessed from data.gov.sg which is made available under the terms of the Singapore Open Data Licence version 1.0.
+          </p>
+          <p className="text-stone-500 max-w-3xl mx-auto leading-relaxed pt-2 border-t border-stone-100">
+            This page uses Microsoft Clarity and Disqus, which use cookies to record how visitors use the site and to host comments. By using this page you agree that we and Microsoft may collect and use this data. See the{' '}
+            <a
+              href="https://www.microsoft.com/privacy/privacystatement"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors"
+            >
+              Microsoft Privacy Statement
+            </a>{' '}
+            (
+            <a
+              href="https://www.microsoft.com/privacy/privacystatement"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors break-all"
+            >
+              https://www.microsoft.com/privacy/privacystatement
+            </a>
+            ), the{' '}
+            <a
+              href="https://disqus.com/privacy-policy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors"
+            >
+              Disqus privacy policy
+            </a>{' '}
+            (
+            <a
+              href="https://disqus.com/privacy-policy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors break-all"
+            >
+              https://disqus.com/privacy-policy/
+            </a>
+            ) and the{' '}
+            <a
+              href="https://disqus.com/data-sharing-settings/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors"
+            >
+              Disqus data sharing settings
+            </a>{' '}
+            (
+            <a
+              href="https://disqus.com/data-sharing-settings/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-stone-800 transition-colors break-all"
+            >
+              https://disqus.com/data-sharing-settings/
+            </a>
+            ).
           </p>
         </div>
       </footer>
