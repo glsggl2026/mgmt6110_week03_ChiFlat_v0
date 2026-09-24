@@ -13,14 +13,14 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
   transactions,
   filters,
 }) => {
-  const n = transactions.length;
+  const n = (transactions || []).length;
   const [blinkState, setBlinkState] = useState<{
     target: BlinkTarget | null;
     key: number;
   }>({ target: null, key: 0 });
 
   const prices = useMemo(() => {
-    return transactions
+    return (transactions || [])
       .map((t) => t.resale_price_num)
       .sort((a, b) => a - b);
   }, [transactions]);
@@ -38,31 +38,20 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
     return `$${kVal}k`;
   };
 
-  if (n === 0) {
-    return (
-      <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center shadow-xs">
-        <h3 className="text-lg font-bold text-stone-800 mb-2">
-          No transactions to plot
-        </h3>
-        <p className="text-sm text-stone-500 max-w-md mx-auto">
-          No flats matched the current filters for {filters.town}. Try clearing or broadening your filters.
-        </p>
-      </div>
-    );
-  }
-
-  // Exact metrics for calculations & top metric cards
-  const minPrice = prices[0];
-  const maxPrice = prices[prices.length - 1];
-  const p25 = getPercentile(prices, 0.25);
+  // Exact metrics for calculations & top metric cards (safe with empty prices array)
+  const hasPrices = prices.length > 0;
+  const minPrice = hasPrices ? prices[0] : 0;
+  const maxPrice = hasPrices ? prices[prices.length - 1] : 0;
+  const p25 = hasPrices ? getPercentile(prices, 0.25) : 0;
   const midIndex = Math.floor(prices.length / 2);
-  const median =
-    prices.length % 2 !== 0
+  const median = hasPrices
+    ? prices.length % 2 !== 0
       ? prices[midIndex]
-      : Math.round((prices[midIndex - 1] + prices[midIndex]) / 2);
-  const p75 = getPercentile(prices, 0.75);
+      : Math.round((prices[midIndex - 1] + prices[midIndex]) / 2)
+    : 0;
+  const p75 = hasPrices ? getPercentile(prices, 0.75) : 0;
   const sum = prices.reduce((acc, v) => acc + v, 0);
-  const average = Math.round(sum / prices.length);
+  const average = hasPrices ? Math.round(sum / prices.length) : 0;
   const iqr = Math.max(0, p75 - p25);
 
   const countBottom25 = prices.filter((p) => p <= p25).length;
@@ -81,7 +70,7 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
   const marginSpan = priceRange > 0 ? priceRange * 0.025 : 25000;
   const domainMin = Math.max(0, minPrice - marginSpan);
   const domainMax = maxPrice + marginSpan;
-  const domainSpan = domainMax - domainMin;
+  const domainSpan = hasPrices ? domainMax - domainMin : 0;
 
   const priceToX = (price: number) => {
     if (domainSpan <= 0) return paddingLeft + usableWidth / 2;
@@ -101,8 +90,9 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
   const boxTop = yCenter - boxHeight / 2;
   const boxWidth = Math.max(4, xP75 - xP25);
 
-  // Sample dots for scatter strip with vertical jitter
+  // Hook 3: Sample dots for scatter strip with vertical jitter (safe with empty array)
   const sampledPrices = useMemo(() => {
+    if (!prices || prices.length === 0) return [];
     if (prices.length <= 140) {
       return prices.map((p, idx) => ({ price: p, originalIndex: idx }));
     }
@@ -115,18 +105,9 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
     return sampled;
   }, [prices]);
 
-  const dots = sampledPrices.map(({ price, originalIndex }) => {
-    const jitter = Math.sin(originalIndex * 137.5) * 20;
-    return {
-      cx: priceToX(price),
-      cy: yCenter + jitter,
-      price,
-    };
-  });
-
-  // Calculate index numbers for the X axis
+  // Hook 4: Calculate index numbers for the X axis (safe with empty array)
   const xAxisTicks = useMemo(() => {
-    if (domainSpan <= 0) return [];
+    if (domainSpan <= 0 || !hasPrices) return [];
     const rawStep = domainSpan / 6;
     let step = 100000;
     if (rawStep < 75000) step = 50000;
@@ -144,7 +125,30 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
       });
     }
     return ticks;
-  }, [domainMin, domainMax, domainSpan]);
+  }, [domainMin, domainMax, domainSpan, hasPrices]);
+
+  // Early return for empty transactions state: runs AFTER all hooks have executed unconditionally
+  if (n === 0) {
+    return (
+      <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center shadow-xs">
+        <h3 className="text-lg font-bold text-stone-800 mb-2">
+          No transactions to plot
+        </h3>
+        <p className="text-sm text-stone-500 max-w-md mx-auto">
+          No flats matched the current filters for {filters.town}. Try clearing or broadening your filters.
+        </p>
+      </div>
+    );
+  }
+
+  const dots = sampledPrices.map(({ price, originalIndex }) => {
+    const jitter = Math.sin(originalIndex * 137.5) * 20;
+    return {
+      cx: priceToX(price),
+      cy: yCenter + jitter,
+      price,
+    };
+  });
 
   const triggerBlink = (target: BlinkTarget) => {
     setBlinkState({ target, key: Date.now() });
