@@ -24,12 +24,19 @@ export default async function handler(req, res) {
   // Limit 10000 to fetch the town's full history into the function
   const endpoint = `https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&filters=${filtersParam}&sort=_id desc&limit=10000`;
 
+  const rawKey = process.env.DATAGOVSG_API_KEY;
+  const apiKey =
+    rawKey && typeof rawKey === 'string' && rawKey.trim().length > 0
+      ? rawKey.trim()
+      : null;
+  const fetchOptions = apiKey ? { headers: { 'x-api-key': apiKey } } : undefined;
+
   let upstreamRes;
   let upstreamMs;
   const startUpstream = Date.now();
 
   try {
-    upstreamRes = await fetch(endpoint);
+    upstreamRes = await fetch(endpoint, fetchOptions);
     upstreamMs = Date.now() - startUpstream;
   } catch (err) {
     res.setHeader('Content-Type', 'application/json');
