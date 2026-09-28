@@ -1,4 +1,4 @@
-# Below is the status of the version as of 26 Sep
+# added severity level to the version of 26 Sep
 
 1. visibility of system status : yes, loading slowly -- 3
 2. Match Between the System and the Real World: fine 
