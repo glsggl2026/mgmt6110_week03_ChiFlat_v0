@@ -19,10 +19,27 @@ export default async function handler(req, res) {
       ? town.trim().toUpperCase()
       : 'ANG MO KIO';
 
-  // Build the filters string using encodeURIComponent(JSON.stringify({ town: selectedTown }))
-  const filtersParam = encodeURIComponent(JSON.stringify({ town: selectedTown }));
-  // Limit 10000 to fetch the town's full history into the function
-  const endpoint = `https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&filters=${filtersParam}&sort=_id desc&limit=10000`;
+  // Build a list of the last 38 calendar months as "YYYY-MM" (36 plus 2 spare in case the newest month is not published yet)
+  const recentMonths = [];
+  const now = new Date();
+  for (let i = 0; i < 38; i++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    recentMonths.push(`${y}-${m}`);
+  }
+
+  // Primary endpoint: filters with town and 38-month array, without sort=_id desc, limit=10000
+  const primaryFiltersParam = encodeURIComponent(
+    JSON.stringify({ town: selectedTown, month: recentMonths })
+  );
+  const endpoint = `https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&filters=${primaryFiltersParam}&limit=10000`;
+
+  // Fallback endpoint: original line-25 query in case data.gov.sg returns non-2xx status other than 429
+  const fallbackFiltersParam = encodeURIComponent(
+    JSON.stringify({ town: selectedTown })
+  );
+  const fallbackEndpoint = `https://data.gov.sg/api/action/datastore_search?resource_id=d_8b84c4ee58e3cfc0ece0d773c8ca6abc&filters=${fallbackFiltersParam}&sort=_id desc&limit=10000`;
 
   const rawKey = process.env.DATAGOVSG_API_KEY;
   const apiKey =
@@ -37,6 +54,12 @@ export default async function handler(req, res) {
 
   try {
     upstreamRes = await fetch(endpoint, fetchOptions);
+
+    // Fallback: if data.gov.sg returns a non-2xx status other than 429 for the new request, retry once with the original line-25 query
+    if (!upstreamRes.ok && upstreamRes.status !== 429) {
+      upstreamRes = await fetch(fallbackEndpoint, fetchOptions);
+    }
+
     upstreamMs = Date.now() - startUpstream;
   } catch (err) {
     res.setHeader('Content-Type', 'application/json');
@@ -146,11 +169,11 @@ export default async function handler(req, res) {
     records: trimmedRecords,
   };
 
-  // Cache the response with Cache-Control: s-maxage=21600, stale-while-revalidate=43200
+  // Cache the response with Cache-Control: s-maxage=43200, stale-while-revalidate=86400
   res.setHeader('Content-Type', 'application/json');
   res.setHeader(
     'Cache-Control',
-    's-maxage=21600, stale-while-revalidate=43200'
+    's-maxage=43200, stale-while-revalidate=86400'
   );
   res.statusCode = 200;
 
