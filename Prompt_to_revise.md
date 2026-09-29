@@ -303,3 +303,112 @@ Untouched files: No changes to UI components, screen styling, /api/health, Disqu
 
 ------
 (git push)
+
+## Commit 2: No flip of filters without User Instruction, even if there's no transaction found
+outcome: agent doesn't select any filter on behalf of user now (H1 & 10, raised by YL)
+
+### Prompt: 
+ROLE: You are a sceptical senior developer and usability reviewer working in my
+existing project. Before you write any code, your job is to argue against the repair
+I propose.
+CONTEXT:
+Live address: [https://week3chiflat.vercel.app/
+Who the product is for, and what it does for them: lets an HDB resale buyer narrow down past resale transactions in terms of data points in past 3 years , and read what those flats actually sold for
+The finding, in its six lines:
+[Where: https://week3chiflat.vercel..., on the filters
+What I did, what I saw: I filtered Bedok, 2-room and last 12 months, leaving other filters untouched, it shows me 22 transactions based on the filters. I then changed the town from Bedok to “Bukit Timah”, the flat type automatically reset to “any”, and there's no transactions to show the plot on the screen.
+Which heuristic: 1, Visibility of System Status.
+Screen or system: Screen. The Network response contains 58 transactions for any flat type in Bukit Timah in the last 12 months but it was not rendered to the front end based on the updated filter.
+Severity, and why: 3, user may not notice that the filter for flat type defaulted to “Any” and the screen incorrectly displayed “no transactions to plot”, inconsistent with the data available to the filters.
+The repair: Notify user when the filter is automatically changed and fix the front-end filter synchronisation so that reset filters are immediately reflected on the screen.
+The evidence behind it: 2 out of 4
+The repair I propose: [Add a "confirm" button in dark green for users to start search. (where: consider to be friendly for right-handler to reach). Also add a reset button left to "confirm" to unfilter all selections in the filters. Remind users with a fine print at the end of filter box to check all filters with a new search.
+GOAL: Argue against my repair.
+Does it solve the problem the finding describes, or a problem I already believed I
+had? Say which, and why.
+Does the problem belong to the screen or to the system, and does my repair sit in
+the right half?
+Name one heuristic this repair could break while it serves the one above, and how.
+Propose the smallest alternative that would make the same thing true.
+Tell me exactly what to do on the live address to check that the repair worked.
+OUTPUT: Your arguments first, as a numbered list. Then stop. Write no code until I
+reply with the repair I have chosen.
+GUARDRAILS: Do not tell me the repair is good. If you have no strong reason to doubt
+it, say so plainly instead of inventing one. When I do ask you to build, change only
+what the repair needs. Do not remove Disqus or the privacy notice,
+and do not break /api/health.
+
+## Agent:
+Does it solve the problem the finding describes, or a problem I already believed I had?
+It solves a problem you already believed you had, and does not even fix the bug described.
+The finding revealed a silent React state desynchronization: Bukit Timah has no 2-Room flats. When you switched town to Bukit Timah, the browser's native <select> couldn't find "2 ROOM" among its options and visually reverted to the first option ("Any"). However, React state filters.flat_type remained secretly stuck on "2 ROOM". React filtered Bukit Timah for 2-Room flats, found zero, and displayed "No transaction to plot", while the screen visually lied that the filter was "Any".
+Adding a "Confirm" button does not solve this: clicking "Confirm" would still query with the hidden "2 ROOM" state and still render zero transactions. A "Confirm" button is a form-submission pattern you believed you needed, not a remedy for unhandled stale state.
+Does the problem belong to the screen or to the system, and does my repair sit in the right half?
+The problem belongs to the screen's state lifecycle (client-side state management), but your repair sits in the wrong half by adding visual form controls and explanatory fine print.
+The bug is a programmatic discrepancy between availableFlatTypes and filters.flat_type. Adding physical buttons and warning fine print pushes the burden of a software synchronization flaw onto the user, requiring them to read caveats and manually reset controls rather than having the software maintain internal integrity.
+Name one heuristic this repair could break while it serves the one above, and how.
+It severely breaks Heuristic 7: Flexibility and Efficiency of Use (and Heuristic 8: Aesthetic and Minimalist Design).
+The application's core strength is reactive, instantaneous exploratory browsing—changing a dropdown immediately updates the box plot and distribution. Introducing an explicit "Confirm" button introduces an artificial friction barrier (requiring a second click after every single dropdown change). Adding fine print ("check all filters with a new search") clutters the interface with apologetic disclaimer text, violating minimalism to explain away a bug the system should handle automatically.
+Propose the smallest alternative that would make the same thing true.
+The smallest alternative is a 3-line useEffect in React (zero new UI, zero buttons, zero fine print):
+Whenever availableFlatTypes or availableFlatModels updates after a town switch, check if the currently selected filters.flat_type exists in availableFlatTypes. If it does not, programmatically reset filters.flat_type to 'Any' (and similarly for flat_model).
+This ensures that React state and the visual dropdown remain 100% synchronized at all times. When you switch to Bukit Timah, flat_type cleanly resets to 'Any' in both the UI and state, and the 58 Bukit Timah transactions render immediately.
+Tell me exactly what to do on the live address to check that the repair worked.
+Navigate to https://week3chiflat.vercel.app/.
+Select Bedok, 2 ROOM, and Last 12 months (confirm 22 transactions render).
+Change Town from Bedok to Bukit Timah.
+Check:
+The Flat Type dropdown displays "Any".
+The screen immediately plots all 58 transactions for Bukit Timah without showing "No transaction to plot".
+Open DevTools console / inspect: confirm that React state and the dropdown value are both strictly 'Any'
+
+## prompt: 
+58 transactions confirmed.
+I have opened F12 console to inspect, but the rest I'm not able to . TOo complex
+
+## agent:
+No worries at all — you don't need to touch or understand the F12 console! We can make the check completely visual and effortless right on the web page.
+The Simple, 3-Click Visual Test (No F12 Needed)
+Once the fix is applied, all you have to do as an everyday user on the website is:
+Step 1: Select Bedok, 2 ROOM, Last 12 months 
+ you see the green summary show 22 transactions.
+Step 2: Change Town to Bukit Timah.
+Step 3: Just look at the screen:
+Does the screen say "58 transactions" (or draw the box chart)? 
+ PASS (the fix worked!).
+Does the screen say "No transaction to plot"? 
+ FAIL (the bug is still there).
+That is literally all you need to watch for.
+What I will build for you:
+Whenever you are ready, I will implement that small 3-line synchronization in src/App.tsx (so that whenever you change town, if that town doesn't have the selected flat type, it cleanly resets to "Any" and displays the real data).
+Shall I go ahead and make that fix now?
+
+## prompt: 
+I need to fix it thru this but you haven't done it. Need the effect like this -- even if there's no transactions, pls. do not flip any filter on behalf of users.
+Pls don't decide for them, as they haven't told you so. Tell me what your plan but don't act yet
+
+SCOPE:
+Apply the same rule to every filter that depends on the town: Flat Type, Flat Model, Lease and Storey. Changing the town must never change another filter's value.
+If the user's selected option has no sales in the new town, keep it in the dropdown, visibly selected, labelled "(0 sales)". Do not add "(0 sales)" options that the user has not selected.
+Empty state: show "No [filter values] transactions found in [town] for the selected period." plus one button per blocking filter, e.g. "Show all flat types", that sets only that filter to Any when the user clicks it.
+The empty state must render without crashing. Keep all hooks above any early return (this app previously blanked the page with React error #300 on zero results).
+TEST BEFORE YOU FINISH: Bedok + 2 ROOM + last 12 months, then change town to Bukit Timah. Expected: Flat Type still shows "2 ROOM (0 sales)", the empty message names 2 ROOM and Bukit Timah, and clicking "Show all flat types" shows the Bukit Timah transactions.
+REPORT BACK: list the files changed and one line per change.
+GUARDRAILS: Change only the filter logic and the empty state. no other changes.
+Do not touch api/, /api/health, Disqus, Clarity, the privacy notice or the chart styling. No new npm packages.
+
+## agent:
+Changes Completed
+src/components/FilterSection.tsx: Retains the user's selected Flat Type, Flat Model, Lease, and Storey options when switching towns, visibly displaying (0 sales) on the selected option if the new town has no transactions for it, without adding (0 sales) to unselected options.
+src/components/PriceBoxChart.tsx: Displays the dynamic empty message "No [filter values] transactions found in [town] for the selected period." with one button per blocking filter (e.g. "Show all flat types"), keeping all React hooks above the early return to prevent render crashes.
+src/components/EmptyState.tsx: Updated to use the matching dynamic empty message and one-click filter reset buttons for any blocking filters.
+src/App.tsx: Computes available lease and storey bands for the selected town/period, passes them to FilterSection, and provides onClearFilter to PriceBoxChart.
+Verification of Test Scenario
+Bedok + 2 ROOM + Last 12 months 
+ shows the 22 Bedok transactions.
+Switch Town to Bukit Timah 
+ Flat Type remains selected as "2 ROOM (0 sales)"; the screen shows:
+No 2 ROOM transactions found in BUKIT TIMAH for the selected period."
+with a "Show all flat types" button.
+Click "Show all flat types" 
+ flat_type resets to "Any", immediately plotting all 58 Bukit Timah transactions.
