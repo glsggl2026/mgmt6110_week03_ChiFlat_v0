@@ -661,7 +661,7 @@ Removing the Transaction Year filter.
 **What came back:** : renamed
 **What I did:**: validated.
 ---
-# Page 5 - PS 4: Prompts to revise
+# Part 2 - PS 4, pg.5: Prompts to revise
 
 
 ## Commit 1: Drop server sort: 18.2s → 6.2s (Heuristics 3 and 1, raised by YL and ZL)
