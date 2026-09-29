@@ -5,6 +5,7 @@ import { getPercentile } from '../utils/hdb.ts';
 interface PriceBoxChartProps {
   transactions: ResaleTransaction[];
   filters: FilterState;
+  onClearFilter?: (key: keyof FilterState) => void;
 }
 
 type BlinkTarget = 'total' | 'median' | 'average' | 'p25' | 'p75' | 'spread';
@@ -12,6 +13,7 @@ type BlinkTarget = 'total' | 'median' | 'average' | 'p25' | 'p75' | 'spread';
 export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
   transactions,
   filters,
+  onClearFilter,
 }) => {
   const n = (transactions || []).length;
   const [blinkState, setBlinkState] = useState<{
@@ -129,14 +131,71 @@ export const PriceBoxChart: React.FC<PriceBoxChartProps> = ({
 
   // Early return for empty transactions state: runs AFTER all hooks have executed unconditionally
   if (n === 0) {
+    const activeFilterLabels: string[] = [];
+    if (filters.flat_type !== 'Any') activeFilterLabels.push(filters.flat_type);
+    if (filters.flat_model !== 'Any') activeFilterLabels.push(filters.flat_model);
+    if (filters.remaining_lease !== 'Any') activeFilterLabels.push(filters.remaining_lease);
+    if (filters.storey_range !== 'Any') activeFilterLabels.push(filters.storey_range);
+
+    const filterValuesText =
+      activeFilterLabels.length > 0 ? `${activeFilterLabels.join(', ')} ` : '';
+
+    const emptyMessage = `No ${filterValuesText}transactions found in ${filters.town} for the selected period.`;
+
     return (
-      <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center shadow-xs">
-        <h3 className="text-lg font-bold text-stone-800 mb-2">
-          No transaction to plot. Remove filter(s) to see more transactions
+      <div
+        id="empty-results-state"
+        className="bg-white border border-stone-200 rounded-2xl p-8 sm:p-10 text-center shadow-xs"
+      >
+        <h3
+          id="empty-state-message"
+          className="text-lg font-bold text-stone-900 mb-4 max-w-xl mx-auto leading-snug"
+        >
+          {emptyMessage}
         </h3>
-        <p className="text-sm text-stone-500 max-w-md mx-auto">
-          No flats matched the current filters for {filters.town}. Try clearing or broadening your filters.
-        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
+          {filters.flat_type !== 'Any' && (
+            <button
+              type="button"
+              id="btn-clear-flat-type"
+              onClick={() => onClearFilter?.('flat_type')}
+              className="px-4 py-2 rounded-xl bg-[#064e3b] hover:bg-[#053d2e] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            >
+              Show all flat types
+            </button>
+          )}
+          {filters.flat_model !== 'Any' && (
+            <button
+              type="button"
+              id="btn-clear-flat-model"
+              onClick={() => onClearFilter?.('flat_model')}
+              className="px-4 py-2 rounded-xl bg-[#064e3b] hover:bg-[#053d2e] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            >
+              Show all flat models
+            </button>
+          )}
+          {filters.remaining_lease !== 'Any' && (
+            <button
+              type="button"
+              id="btn-clear-remaining-lease"
+              onClick={() => onClearFilter?.('remaining_lease')}
+              className="px-4 py-2 rounded-xl bg-[#064e3b] hover:bg-[#053d2e] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            >
+              Show all leases
+            </button>
+          )}
+          {filters.storey_range !== 'Any' && (
+            <button
+              type="button"
+              id="btn-clear-storey"
+              onClick={() => onClearFilter?.('storey_range')}
+              className="px-4 py-2 rounded-xl bg-[#064e3b] hover:bg-[#053d2e] active:scale-[0.98] text-white text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            >
+              Show all storeys
+            </button>
+          )}
+        </div>
       </div>
     );
   }

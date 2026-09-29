@@ -8,6 +8,8 @@ interface FilterSectionProps {
   availableTowns: string[];
   availableFlatTypes: string[];
   availableFlatModels: string[];
+  availableLeaseBands?: string[];
+  availableStoreyBands?: string[];
 }
 
 export const FilterSection: React.FC<FilterSectionProps> = ({
@@ -16,6 +18,8 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
   availableTowns,
   availableFlatTypes,
   availableFlatModels,
+  availableLeaseBands,
+  availableStoreyBands,
 }) => {
   const handleChange = (key: keyof FilterState, value: string) => {
     onFilterChange({
@@ -98,6 +102,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
                 {type}
               </option>
             ))}
+            {filters.flat_type !== 'Any' && !availableFlatTypes.includes(filters.flat_type) && (
+              <option key={filters.flat_type} value={filters.flat_type}>
+                {filters.flat_type} (0 sales)
+              </option>
+            )}
           </select>
         </div>
 
@@ -122,6 +131,11 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
                 {model}
               </option>
             ))}
+            {filters.flat_model !== 'Any' && !availableFlatModels.includes(filters.flat_model) && (
+              <option key={filters.flat_model} value={filters.flat_model}>
+                {filters.flat_model} (0 sales)
+              </option>
+            )}
           </select>
         </div>
 
@@ -141,11 +155,19 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
-            {LEASE_BANDS.map((band) => (
-              <option key={band} value={band}>
-                {band}
-              </option>
-            ))}
+            {LEASE_BANDS.map((band) => {
+              const isSelectedWithNoSales =
+                filters.remaining_lease === band &&
+                availableLeaseBands !== undefined &&
+                availableLeaseBands.length > 0 &&
+                !availableLeaseBands.includes(band);
+
+              return (
+                <option key={band} value={band}>
+                  {isSelectedWithNoSales ? `${band} (0 sales)` : band}
+                </option>
+              );
+            })}
           </select>
         </div>
 
@@ -165,11 +187,19 @@ export const FilterSection: React.FC<FilterSectionProps> = ({
             className="w-full h-[38px] px-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-800 transition-colors cursor-pointer"
           >
             <option value="Any">Any</option>
-            {STOREY_BANDS.map((band) => (
-              <option key={band} value={band}>
-                {band}
-              </option>
-            ))}
+            {STOREY_BANDS.map((band) => {
+              const isSelectedWithNoSales =
+                filters.storey_range === band &&
+                availableStoreyBands !== undefined &&
+                availableStoreyBands.length > 0 &&
+                !availableStoreyBands.includes(band);
+
+              return (
+                <option key={band} value={band}>
+                  {isSelectedWithNoSales ? `${band} (0 sales)` : band}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>

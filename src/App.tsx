@@ -152,6 +152,26 @@ export default function App() {
     filters.storey_range,
   ]);
 
+  const availableLeaseBands = useMemo(() => {
+    const bands = new Set<string>();
+    townTransactions.forEach((tx) => {
+      if (isWithinPeriod(tx.month, newestMonth, filters.period)) {
+        bands.add(tx.lease_band);
+      }
+    });
+    return Array.from(bands);
+  }, [townTransactions, newestMonth, filters.period]);
+
+  const availableStoreyBands = useMemo(() => {
+    const bands = new Set<string>();
+    townTransactions.forEach((tx) => {
+      if (isWithinPeriod(tx.month, newestMonth, filters.period)) {
+        bands.add(tx.storey_band);
+      }
+    });
+    return Array.from(bands);
+  }, [townTransactions, newestMonth, filters.period]);
+
   // Filter the transactions immediately as any filter changes
   const filteredTransactions = useMemo(() => {
     return townTransactions.filter((tx) => {
@@ -248,6 +268,8 @@ export default function App() {
               availableTowns={availableTowns}
               availableFlatTypes={availableFlatTypes}
               availableFlatModels={availableFlatModels}
+              availableLeaseBands={availableLeaseBands}
+              availableStoreyBands={availableStoreyBands}
             />
 
             {/* Screen Navigation Cards: Dark green background and white text when clicked */}
@@ -303,6 +325,7 @@ export default function App() {
                 <PriceBoxChart
                   transactions={sortedTransactions}
                   filters={filters}
+                  onClearFilter={handleClearFilter}
                 />
                 {/* Visitor feedback thread */}
                 <DisqusComments />
